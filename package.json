@@ -25,6 +25,9 @@
     "commercial-erp"
   ],
   "author": "ERP Engineering Team",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
 }
 
