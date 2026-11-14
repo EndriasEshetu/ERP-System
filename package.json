@@ -12,10 +12,14 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
+    "dev": "concurrently -k -p \"[{name}]\" -n \"API,WEB\" -c \"cyan.bold,magenta.bold\" \"npm run dev:api\" \"npm run dev:web\"",
     "dev:api": "npm run dev --workspace=@erp/api",
     "dev:web": "npm run dev --workspace=@erp/web",
     "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "test": "npm run test --workspaces --if-present",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
@@ -30,6 +34,8 @@
   "author": "ERP Engineering Team",
   "license": "UNLICENSED",
   "devDependencies": {
+    "concurrently": "^9.1.0",
+    "prettier": "^3.4.2",
     "typescript": "^5.7.2"
   }
 }
