@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 // Load environment variables from monorepo root or local directory
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 dotenv.config({ path: path.resolve(process.cwd(), '../../.env') });
 dotenv.config();
 
