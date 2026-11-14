@@ -1,0 +1,19 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Minimal model for connection verification during milestone 1
+// Business models will be introduced during their respective milestones
+model SystemCheck {
+  id        String   @id @default(uuid())
+  status    String   @default("HEALTHY")
+  checkedAt DateTime @default(now())
+
+  @@map("system_checks")
+}
+
