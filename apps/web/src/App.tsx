@@ -1,7 +1,17 @@
 import { useEffect, useState } from 'react';
 import { ApiResponse } from '@erp/shared';
 import { CatalogView } from './modules/products/CatalogView.js';
-import { Activity, Package, Server, ShieldCheck } from 'lucide-react';
+import { InventoryView } from './modules/inventory/InventoryView.js';
+import { ProcurementView } from './modules/procurement/ProcurementView.js';
+import { OperationalDashboard } from './modules/dashboard/OperationalDashboard.js';
+import {
+  Activity,
+  Package,
+  Server,
+  Layers,
+  ShoppingBag,
+  LayoutDashboard,
+} from 'lucide-react';
 
 interface HealthData {
   status: 'UP' | 'DOWN';
@@ -12,11 +22,13 @@ interface HealthData {
   database: 'CONNECTED' | 'DISCONNECTED';
 }
 
+type TabType = 'dashboard' | 'catalog' | 'inventory' | 'procurement' | 'health';
+
 export default function App() {
   const [health, setHealth] = useState<HealthData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [mainTab, setMainTab] = useState<'health' | 'catalog'>('catalog');
+  const [mainTab, setMainTab] = useState<TabType>('dashboard');
 
   const fetchHealth = async () => {
     setLoading(true);
@@ -47,16 +59,16 @@ export default function App() {
         <header className="border-b border-slate-800 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
-              <span className="px-3 py-1 rounded bg-sky-500/10 text-sky-400 text-xs font-semibold uppercase tracking-wider border border-sky-500/20">
-                Commercial Core
+              <span className="px-3 py-1 rounded bg-emerald-500/10 text-emerald-400 text-xs font-semibold uppercase tracking-wider border border-emerald-500/20">
+                Developer B Core
               </span>
-              <span className="text-xs text-slate-400">Milestone 2 • Product Operations</span>
+              <span className="text-xs text-slate-400">Supply Chain, Inventory & Procurement</span>
             </div>
             <h1 className="text-3xl font-bold tracking-tight text-white mt-2">
               ERP System Platform
             </h1>
             <p className="text-sm text-slate-400 mt-1">
-              Modular Monolith ERP inspired by Odoo • Multi-tenant by design
+              Modular Monolith ERP • Multi-tenant by design • Full-Stack Operational Suite
             </p>
           </div>
 
@@ -72,24 +84,58 @@ export default function App() {
         </header>
 
         {/* Main Navigation Tabs */}
-        <nav className="flex items-center gap-3 border-b border-slate-800 pb-2">
+        <nav className="flex flex-wrap items-center gap-2 border-b border-slate-800 pb-3">
+          <button
+            onClick={() => setMainTab('dashboard')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition ${
+              mainTab === 'dashboard'
+                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+            }`}
+          >
+            <LayoutDashboard className="w-4 h-4" />
+            <span>Dashboard & KPIs</span>
+          </button>
+
           <button
             onClick={() => setMainTab('catalog')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition ${
               mainTab === 'catalog'
                 ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
                 : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
             }`}
           >
             <Package className="w-4 h-4" />
-            <span>Product Operations & Catalog</span>
-            <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-700 text-emerald-100">
-              Developer B
-            </span>
+            <span>Catalog (Products, UoM, Categories)</span>
           </button>
+
+          <button
+            onClick={() => setMainTab('inventory')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition ${
+              mainTab === 'inventory'
+                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+            }`}
+          >
+            <Layers className="w-4 h-4" />
+            <span>Warehouses & Stock Ledger</span>
+          </button>
+
+          <button
+            onClick={() => setMainTab('procurement')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition ${
+              mainTab === 'procurement'
+                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+            }`}
+          >
+            <ShoppingBag className="w-4 h-4" />
+            <span>Procurement & Goods Receiving</span>
+          </button>
+
           <button
             onClick={() => setMainTab('health')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition ${
               mainTab === 'health'
                 ? 'bg-sky-600 text-white shadow-lg shadow-sky-600/20'
                 : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
@@ -100,32 +146,35 @@ export default function App() {
           </button>
         </nav>
 
-        {/* VIEW 1: CATALOG MANAGEMENT */}
+        {/* TAB 1: OPERATIONAL DASHBOARD */}
+        {mainTab === 'dashboard' && (
+          <section className="bg-slate-800/50 border border-slate-800 rounded-2xl p-6 backdrop-blur space-y-6">
+            <OperationalDashboard />
+          </section>
+        )}
+
+        {/* TAB 2: PRODUCT CATALOG */}
         {mainTab === 'catalog' && (
           <section className="bg-slate-800/50 border border-slate-800 rounded-2xl p-6 backdrop-blur space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-4">
-              <div>
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                  <span>Product Operations Domain</span>
-                  <span className="px-2 py-0.5 text-[10px] rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    Live Vertical Slice
-                  </span>
-                </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Multi-tenant catalog engine: Units of Measurement, Hierarchical Categories, and Products.
-                </p>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-slate-400">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>Tenant-Isolated Scoping Active</span>
-              </div>
-            </div>
-
             <CatalogView />
           </section>
         )}
 
-        {/* VIEW 2: SYSTEM HEALTH & ARCHITECTURE OVERVIEW */}
+        {/* TAB 3: WAREHOUSES & INVENTORY */}
+        {mainTab === 'inventory' && (
+          <section className="bg-slate-800/50 border border-slate-800 rounded-2xl p-6 backdrop-blur space-y-6">
+            <InventoryView />
+          </section>
+        )}
+
+        {/* TAB 4: PROCUREMENT & GOODS RECEIVING */}
+        {mainTab === 'procurement' && (
+          <section className="bg-slate-800/50 border border-slate-800 rounded-2xl p-6 backdrop-blur space-y-6">
+            <ProcurementView />
+          </section>
+        )}
+
+        {/* TAB 5: SYSTEM HEALTH & ARCHITECTURE OVERVIEW */}
         {mainTab === 'health' && (
           <div className="space-y-8">
             {/* Live System Connectivity Widget */}
