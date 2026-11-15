@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { ApiResponse, HTTP_STATUS, SupplierDto } from '@erp/shared';
+import { HTTP_STATUS } from '@erp/shared';
 import { supplierService } from './supplier.service.js';
 
 export class SupplierController {
-  async list(req: Request, res: Response<ApiResponse<SupplierDto[]>>): Promise<void> {
+  async list(req: Request, res: Response): Promise<void> {
     try {
       const items = await supplierService.list(req.organizationId);
       res.status(HTTP_STATUS.OK).json({

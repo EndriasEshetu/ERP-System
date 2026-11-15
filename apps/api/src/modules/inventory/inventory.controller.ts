@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { ApiResponse, HTTP_STATUS, StockLevelDto, StockMovementDto, StockCheckResult } from '@erp/shared';
+import { HTTP_STATUS } from '@erp/shared';
 import { inventoryService } from './inventory.service.js';
 
 export class InventoryController {
-  async getStockLevels(req: Request, res: Response<ApiResponse<StockLevelDto[]>>): Promise<void> {
+  async getStockLevels(req: Request, res: Response): Promise<void> {
     try {
       const { warehouseId, productId } = req.query;
       const levels = await inventoryService.getStockLevels(
@@ -27,7 +27,7 @@ export class InventoryController {
     }
   }
 
-  async getStockMovements(req: Request, res: Response<ApiResponse<StockMovementDto[]>>): Promise<void> {
+  async getStockMovements(req: Request, res: Response): Promise<void> {
     try {
       const { productId, warehouseId, limit } = req.query;
       const movements = await inventoryService.getStockMovements(
@@ -110,7 +110,7 @@ export class InventoryController {
     }
   }
 
-  async checkAvailability(req: Request, res: Response<ApiResponse<StockCheckResult>>): Promise<void> {
+  async checkAvailability(req: Request, res: Response): Promise<void> {
     try {
       const { productId, warehouseId, requiredQty } = req.body;
       if (!productId || requiredQty === undefined) {
