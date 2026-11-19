@@ -10,6 +10,7 @@ import { tenantContext } from './middleware/tenant.middleware.js';
 
 // Routers
 import { healthRouter } from './modules/health/health.router.js';
+import { authRouter } from './modules/auth/auth.router.js';
 import { uomRouter } from './modules/uom/uom.router.js';
 import { categoryRouter } from './modules/categories/category.router.js';
 import { productRouter } from './modules/products/product.router.js';
@@ -43,8 +44,9 @@ export function createApp(): Express {
   // Multi-tenancy Scoping Middleware (applies to all downstream routes)
   app.use(tenantContext);
 
-  // API Routes (Developer B Modules)
+  // API Routes
   app.use(`${env.API_PREFIX}/health`, healthRouter);
+  app.use(`${env.API_PREFIX}/auth`, authRouter);
   app.use(`${env.API_PREFIX}/uom`, uomRouter);
   app.use(`${env.API_PREFIX}/categories`, categoryRouter);
   app.use(`${env.API_PREFIX}/products`, productRouter);
