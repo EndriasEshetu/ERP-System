@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ApiResponse } from '@erp/shared';
 import { CatalogView } from './modules/products/CatalogView.js';
 import { InventoryView } from './modules/inventory/InventoryView.js';
 import { ProcurementView } from './modules/procurement/ProcurementView.js';
 import { OperationalDashboard } from './modules/dashboard/OperationalDashboard.js';
+import { AuthProvider } from './context/AuthContext.js';
+import { ProtectedRoute } from './routes/ProtectedRoute.js';
+import { LoginPage } from './modules/auth/LoginPage.js';
+import { RegisterPage } from './modules/auth/RegisterPage.js';
+import { useAuth } from './hooks/useAuth.js';
 import {
   Activity,
   Package,
@@ -11,6 +17,8 @@ import {
   Layers,
   ShoppingBag,
   LayoutDashboard,
+  LogOut,
+  UserCheck,
 } from 'lucide-react';
 
 interface HealthData {
@@ -24,7 +32,8 @@ interface HealthData {
 
 type TabType = 'dashboard' | 'catalog' | 'inventory' | 'procurement' | 'health';
 
-export default function App() {
+function ERPPlatform() {
+  const { user, logout } = useAuth();
   const [health, setHealth] = useState<HealthData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +43,9 @@ export default function App() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('http://localhost:5000/api/v1/health');
+      const res = await fetch('http://localhost:5000/api/v1/health', {
+        credentials: 'include',
+      });
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}: ${res.statusText}`);
       }
@@ -60,9 +71,9 @@ export default function App() {
           <div>
             <div className="flex items-center gap-3">
               <span className="px-3 py-1 rounded bg-emerald-500/10 text-emerald-400 text-xs font-semibold uppercase tracking-wider border border-emerald-500/20">
-                Developer B Core
+                Commercial Core
               </span>
-              <span className="text-xs text-slate-400">Supply Chain, Inventory & Procurement</span>
+              <span className="text-xs text-slate-400">Milestone 2 • Authenticated Session Active</span>
             </div>
             <h1 className="text-3xl font-bold tracking-tight text-white mt-2">
               ERP System Platform
@@ -72,7 +83,27 @@ export default function App() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Authenticated User Badge */}
+            {user && (
+              <div className="flex items-center gap-3 pl-3 pr-2 py-1.5 bg-slate-800/80 border border-slate-700/80 rounded-xl shadow-sm">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                  <UserCheck className="w-4 h-4" />
+                </div>
+                <div className="text-left text-xs pr-1">
+                  <span className="block font-semibold text-white leading-tight">{user.name}</span>
+                  <span className="block text-[11px] text-slate-400 leading-tight">{user.email}</span>
+                </div>
+                <button
+                  onClick={logout}
+                  title="Sign Out"
+                  className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-700/60 rounded-lg transition"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
             <button
               onClick={fetchHealth}
               className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-medium transition flex items-center gap-2"
@@ -177,7 +208,6 @@ export default function App() {
         {/* TAB 5: SYSTEM HEALTH & ARCHITECTURE OVERVIEW */}
         {mainTab === 'health' && (
           <div className="space-y-8">
-            {/* Live System Connectivity Widget */}
             <section className="bg-slate-800/60 border border-slate-800 rounded-xl p-6 backdrop-blur">
               <h2 className="text-base font-semibold text-white mb-4 flex items-center justify-between">
                 <span>Live System Health & Connectivity</span>
@@ -185,7 +215,6 @@ export default function App() {
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Frontend Card */}
                 <div className="bg-slate-900/80 p-4 rounded-lg border border-slate-800">
                   <span className="text-xs text-slate-400 uppercase font-medium">Frontend Client</span>
                   <div className="mt-2 flex items-center gap-2">
@@ -195,7 +224,6 @@ export default function App() {
                   <p className="text-xs text-slate-400 mt-2">React 18 • Vite 6 • Tailwind</p>
                 </div>
 
-                {/* Backend API Card */}
                 <div className="bg-slate-900/80 p-4 rounded-lg border border-slate-800">
                   <span className="text-xs text-slate-400 uppercase font-medium">Backend API</span>
                   <div className="mt-2 flex items-center gap-2">
@@ -216,7 +244,6 @@ export default function App() {
                   <p className="text-xs text-slate-400 mt-2">Express • Node.js • ESM</p>
                 </div>
 
-                {/* Database Card */}
                 <div className="bg-slate-900/80 p-4 rounded-lg border border-slate-800">
                   <span className="text-xs text-slate-400 uppercase font-medium">PostgreSQL Database</span>
                   <div className="mt-2 flex items-center gap-2">
@@ -235,7 +262,6 @@ export default function App() {
                   <p className="text-xs text-slate-400 mt-2">Neon Cloud • Prisma ORM</p>
                 </div>
 
-                {/* Environment Info */}
                 <div className="bg-slate-900/80 p-4 rounded-lg border border-slate-800">
                   <span className="text-xs text-slate-400 uppercase font-medium">Active Environment</span>
                   <div className="mt-2">
@@ -256,78 +282,30 @@ export default function App() {
                 </div>
               )}
             </section>
-
-            {/* Development Responsibilities Breakdown */}
-            <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Endrias */}
-              <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-6">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-                  <div>
-                    <h3 className="font-semibold text-white">Lead Developer: Endrias</h3>
-                    <p className="text-xs text-sky-400">Platform Core, Multi-tenancy & Operations</p>
-                  </div>
-                  <span className="px-2 py-1 text-xs bg-sky-500/10 text-sky-400 border border-sky-500/20 rounded">
-                    Developer A
-                  </span>
-                </div>
-                <ul className="mt-4 space-y-2 text-xs text-slate-300">
-                  <li className="flex items-center gap-2">
-                    <span className="text-sky-400">•</span> Architecture & Base Monorepo Environment
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-sky-400">•</span> Authentication & Session Management
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-sky-400">•</span> Organizations & Multi-tenancy Isolation
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-sky-400">•</span> User Accounts, Roles & Granular RBAC
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-sky-400">•</span> CRM (Customers, Contacts, Leads, Deals)
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-sky-400">•</span> Sales Orders & Invoicing Foundation
-                  </li>
-                </ul>
-              </div>
-
-              {/* Kenenisa */}
-              <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-6">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-                  <div>
-                    <h3 className="font-semibold text-white">Lead Developer: Kenenisa</h3>
-                    <p className="text-xs text-emerald-400">Supply Chain & Operational Intelligence</p>
-                  </div>
-                  <span className="px-2 py-1 text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded">
-                    Developer B (Active)
-                  </span>
-                </div>
-                <ul className="mt-4 space-y-2 text-xs text-slate-300">
-                  <li className="flex items-center gap-2">
-                    <span className="text-emerald-400">•</span> Product Catalog, Categories & UoM
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-emerald-400">•</span> Multi-Warehouse & Stock Movements
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-emerald-400">•</span> Supplier Management & Vendor Directory
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-emerald-400">•</span> Purchase Requests & Purchase Orders
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-emerald-400">•</span> Goods Receiving & Inbound Logistics
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-emerald-400">•</span> Notifications & Operational Dashboards
-                  </li>
-                </ul>
-              </div>
-            </section>
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <ERPPlatform />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
