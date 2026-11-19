@@ -16,6 +16,7 @@
     "lucide-react": "^0.469.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-router-dom": "^7.18.6",
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
@@ -31,4 +32,3 @@
     "vite": "^6.0.7"
   }
 }
-

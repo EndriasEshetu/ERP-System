@@ -12,7 +12,9 @@ export const env = {
   API_PREFIX: process.env.API_PREFIX || '/api/v1',
   CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:5173',
   DATABASE_URL: process.env.DATABASE_URL || '',
+  SESSION_COOKIE_NAME: process.env.SESSION_COOKIE_NAME || 'erp_session',
+  SESSION_TTL_HOURS: parseInt(process.env.SESSION_TTL_HOURS || '24', 10),
+  SESSION_SECRET: process.env.SESSION_SECRET || 'dev_session_secret_change_in_production',
   isProduction: process.env.NODE_ENV === 'production',
   isDevelopment: process.env.NODE_ENV === 'development',
 } as const;
-

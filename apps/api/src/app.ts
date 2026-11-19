@@ -1,6 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import { ApiErrorResponse, HTTP_STATUS } from '@erp/shared';
 import { env } from './config/env.config.js';
 import { requestLogger } from './middleware/requestLogger.middleware.js';
@@ -34,6 +35,7 @@ export function createApp(): Express {
   // Body parsers with size limit
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+  app.use(cookieParser());
 
   // Request logging
   app.use(requestLogger);

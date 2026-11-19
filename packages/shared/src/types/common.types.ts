@@ -21,6 +21,7 @@ export interface TenantScopedEntity extends BaseEntity {
 export interface AuthenticatedUser {
   id: string;
   email: string;
+  name?: string;
   firstName?: string;
   lastName?: string;
   organizationId?: string;
