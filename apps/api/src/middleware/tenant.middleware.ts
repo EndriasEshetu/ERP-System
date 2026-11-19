@@ -23,7 +23,7 @@ export function tenantContext(req: Request, _res: Response, next: NextFunction):
   const userHeader = req.headers['x-user-id'];
 
   req.organizationId = (Array.isArray(orgHeader) ? orgHeader[0] : orgHeader) || DEFAULT_ORG_ID;
-  req.userId = (Array.isArray(userHeader) ? userHeader[0] : userHeader) || DEFAULT_USER_ID;
+  req.userId = req.user?.id || (Array.isArray(userHeader) ? userHeader[0] : userHeader) || DEFAULT_USER_ID;
 
   next();
 }

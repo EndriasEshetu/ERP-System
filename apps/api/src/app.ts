@@ -6,6 +6,7 @@ import { ApiErrorResponse, HTTP_STATUS } from '@erp/shared';
 import { env } from './config/env.config.js';
 import { requestLogger } from './middleware/requestLogger.middleware.js';
 import { errorHandler } from './middleware/errorHandler.middleware.js';
+import { authenticate } from './middleware/authenticate.middleware.js';
 import { tenantContext } from './middleware/tenant.middleware.js';
 
 // Routers
@@ -40,6 +41,9 @@ export function createApp(): Express {
 
   // Request logging
   app.use(requestLogger);
+
+  // Authentication session resolution (attaches req.user & req.sessionId if valid cookie)
+  app.use(authenticate);
 
   // Multi-tenancy Scoping Middleware (applies to all downstream routes)
   app.use(tenantContext);

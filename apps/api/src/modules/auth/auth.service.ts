@@ -1,5 +1,5 @@
 import { User } from '@prisma/client';
-import { AuthUserDto, UserStatus } from '@erp/shared';
+import { AuthUserDto, SessionDto, UserStatus } from '@erp/shared';
 import { prisma } from '../../database/prisma.service.js';
 import { ConflictError, UnauthorizedError } from '../../shared/errors/app-error.js';
 import { hashPassword, comparePassword } from './auth.hasher.js';
@@ -200,6 +200,56 @@ export class AuthService {
       where: { id: session.id },
       data: { revokedAt: new Date() },
     });
+
+    return true;
+  }
+
+  /**
+   * Retrieves all active sessions for a user, marking the calling session.
+   */
+  async getUserActiveSessions(userId: string, currentSessionId?: string): Promise<SessionDto[]> {
+    const sessions = await prisma.session.findMany({
+      where: {
+        userId,
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      orderBy: { lastActivityAt: 'desc' },
+    });
+
+    return sessions.map((s) => ({
+      id: s.id,
+      userId: s.userId,
+      expiresAt: s.expiresAt.toISOString(),
+      createdAt: s.createdAt.toISOString(),
+      lastActivityAt: s.lastActivityAt.toISOString(),
+      isCurrent: s.id === currentSessionId,
+      userAgent: s.userAgent,
+      ipAddress: s.ipAddress,
+    }));
+  }
+
+  /**
+   * Revokes a specific session belonging to the user by session ID.
+   */
+  async revokeSessionById(userId: string, sessionId: string): Promise<boolean> {
+    const session = await prisma.session.findFirst({
+      where: {
+        id: sessionId,
+        userId,
+      },
+    });
+
+    if (!session) {
+      return false;
+    }
+
+    if (session.revokedAt === null) {
+      await prisma.session.update({
+        where: { id: sessionId },
+        data: { revokedAt: new Date() },
+      });
+    }
 
     return true;
   }

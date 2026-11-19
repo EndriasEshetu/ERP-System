@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { ApiResponse, AuthResponseData, HTTP_STATUS } from '@erp/shared';
+import { ApiResponse, AuthResponseData, SessionsResponseData, HTTP_STATUS } from '@erp/shared';
 import { authService } from './auth.service.js';
 import { setSessionCookie, clearSessionCookie, extractSessionToken } from './auth.cookie.js';
 import { RegisterInput, LoginInput } from './auth.validation.js';
+import { NotFoundError, UnauthorizedError } from '../../shared/errors/app-error.js';
 
 export class AuthController {
   /**
@@ -84,6 +85,89 @@ export class AuthController {
       res.status(HTTP_STATUS.OK).json({
         success: true,
         message: 'Logged out successfully',
+        data: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Retrieves the currently authenticated user's profile.
+   */
+  async getCurrentUser(
+    req: Request,
+    res: Response<ApiResponse<AuthResponseData>>,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      if (!req.user) {
+        throw new UnauthorizedError('Authentication required', 'UNAUTHORIZED');
+      }
+
+      res.status(HTTP_STATUS.OK).json({
+        success: true,
+        message: 'Current user retrieved successfully',
+        data: { user: req.user },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Lists all active sessions for the authenticated user, identifying the calling session.
+   */
+  async getSessions(
+    req: Request,
+    res: Response<ApiResponse<SessionsResponseData>>,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      if (!req.user) {
+        throw new UnauthorizedError('Authentication required', 'UNAUTHORIZED');
+      }
+
+      const sessions = await authService.getUserActiveSessions(req.user.id, req.sessionId);
+
+      res.status(HTTP_STATUS.OK).json({
+        success: true,
+        message: 'Active sessions retrieved successfully',
+        data: { sessions },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Revokes a specific session belonging to the authenticated user.
+   */
+  async revokeSessionById(
+    req: Request<{ id: string }>,
+    res: Response<ApiResponse<null>>,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      if (!req.user) {
+        throw new UnauthorizedError('Authentication required', 'UNAUTHORIZED');
+      }
+
+      const sessionId = req.params.id;
+      const revoked = await authService.revokeSessionById(req.user.id, sessionId);
+
+      if (!revoked) {
+        throw new NotFoundError('Session not found or already revoked', 'SESSION_NOT_FOUND');
+      }
+
+      // If the revoked session was the current caller's session, clear the cookie
+      if (sessionId === req.sessionId) {
+        clearSessionCookie(res);
+      }
+
+      res.status(HTTP_STATUS.OK).json({
+        success: true,
+        message: 'Session revoked successfully',
         data: null,
       });
     } catch (error) {

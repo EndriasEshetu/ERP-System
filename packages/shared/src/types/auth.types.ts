@@ -51,3 +51,10 @@ export interface SessionDto {
 export interface AuthResponseData {
   user: AuthUserDto;
 }
+
+/**
+ * Sessions response data envelope
+ */
+export interface SessionsResponseData {
+  sessions: SessionDto[];
+}
